@@ -1,76 +1,89 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import ProductCard from '@/components/ProductCard'
-import { supabase, Product } from '@/lib/supabase'
-import { useAuth } from '@/hooks/useAuth'
-import { Search, Plus, Filter } from 'lucide-react'
-import { toast } from 'sonner'
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import ProductCard from "@/components/ProductCard";
+import { supabase, Product } from "@/lib/supabase";
+import { useAuth } from "@/hooks/useAuth";
+import { Search, Plus, Filter } from "lucide-react";
+import { toast } from "sonner";
 
 export default function ProductsPage() {
-  const { user, profile } = useAuth()
-  const router = useRouter()
-  const [products, setProducts] = useState<Product[]>([])
-  const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [categoryFilter, setCategoryFilter] = useState('all')
-  const [sortBy, setSortBy] = useState('created_at')
+  const { user, profile } = useAuth();
+  const router = useRouter();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("created_at");
 
   useEffect(() => {
-    loadProducts()
-  }, [user, searchQuery, categoryFilter, sortBy])
+    loadProducts();
+  }, [user, searchQuery, categoryFilter, sortBy]);
 
   const loadProducts = async () => {
+    setLoading(true);
     try {
-      let query = supabase
-        .from('products')
-        .select('*')
+      let query = supabase.from("products").select("*");
 
       // Filter by merchant's products if merchant
-      if (profile?.role === 'merchant') {
-        query = query.eq('user_id', user?.id)
+      if (profile?.role === "merchant") {
+        query = query.eq("user_id", user?.id);
       }
 
       // Apply search filter
       if (searchQuery) {
-        query = query.ilike('title', `%${searchQuery}%`)
+        query = query.ilike("title", `%${searchQuery}%`);
       }
 
       // Apply category filter
-      if (categoryFilter !== 'all') {
-        query = query.eq('category', categoryFilter)
+      if (categoryFilter !== "all") {
+        query = query.eq("category", categoryFilter);
       }
 
       // Apply sorting
-      query = query.order(sortBy, { ascending: sortBy === 'price' })
+      query = query.order(sortBy, { ascending: sortBy === "price" });
 
-      const { data, error } = await query
+      const { data, error } = await query;
 
-      if (error) throw error
-      setProducts(data || [])
+      if (error) throw error;
+
+      // Assure que image_url est toujours un tableau
+      const safeData =
+        data?.map((p) => ({
+          ...p,
+          image_url: p.image_url || [],
+        })) || [];
+
+      setProducts(safeData);
     } catch (error: any) {
-      toast.error('Failed to load products')
+      toast.error("Failed to load products");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const handleProductDeleted = () => {
-    loadProducts()
-  }
+    loadProducts();
+  };
 
   const handleProductEdit = (productId: string) => {
-    router.push(`/dashboard/products/edit/${productId}`)
-  }
+    router.push(`/dashboard/products/edit/${productId}`);
+  };
 
   if (loading) {
-    return <div className="flex justify-center py-8">Loading products...</div>
+    return <div className="flex justify-center py-8">Loading products...</div>;
   }
 
   return (
@@ -79,17 +92,16 @@ export default function ProductsPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">
-            {profile?.role === 'merchant' ? 'My Products' : 'Products'}
+            {profile?.role === "merchant" ? "My Products" : "Products"}
           </h1>
           <p className="text-muted-foreground">
-            {profile?.role === 'merchant' 
-              ? 'Manage your product catalog' 
-              : 'Discover amazing products'
-            }
+            {profile?.role === "merchant"
+              ? "Manage your product catalog"
+              : "Discover amazing products"}
           </p>
         </div>
-        {profile?.role === 'merchant' && (
-          <Button onClick={() => router.push('/dashboard/products/add')}>
+        {profile?.role === "merchant" && (
+          <Button onClick={() => router.push("/dashboard/products/add")}>
             <Plus className="mr-2 h-4 w-4" />
             Add Product
           </Button>
@@ -115,7 +127,7 @@ export default function ProductsPage() {
                 className="pl-10"
               />
             </div>
-            
+
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger>
                 <SelectValue placeholder="Category" />
@@ -149,15 +161,14 @@ export default function ProductsPage() {
       {products.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-muted-foreground text-lg">
-            {profile?.role === 'merchant' 
-              ? 'No products found. Start by adding your first product!' 
-              : 'No products found matching your criteria.'
-            }
+            {profile?.role === "merchant"
+              ? "No products found. Start by adding your first product!"
+              : "No products found matching your criteria."}
           </p>
-          {profile?.role === 'merchant' && (
-            <Button 
-              className="mt-4" 
-              onClick={() => router.push('/dashboard/products/add')}
+          {profile?.role === "merchant" && (
+            <Button
+              className="mt-4"
+              onClick={() => router.push("/dashboard/products/add")}
             >
               <Plus className="mr-2 h-4 w-4" />
               Add Your First Product
@@ -180,9 +191,9 @@ export default function ProductsPage() {
       {/* Stats */}
       <div className="flex items-center justify-center pt-6">
         <Badge variant="outline">
-          {products.length} product{products.length !== 1 ? 's' : ''} found
+          {products.length} product{products.length !== 1 ? "s" : ""} found
         </Badge>
       </div>
     </div>
-  )
+  );
 }
