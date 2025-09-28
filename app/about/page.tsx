@@ -1,45 +1,50 @@
-import { Metadata } from 'next'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { ShoppingBag, Users, Heart, Shield, Truck, Star } from 'lucide-react'
+import { Metadata } from "next";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { ShoppingBag, Users, Heart, Shield, Truck, Star } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: 'À propos - DakarMarket',
-  description: 'Découvrez l\'histoire et la mission de DakarMarket, votre plateforme d\'e-commerce local à Dakar.',
-}
+  title: "À propos - DakarMarket",
+  description:
+    "Découvrez l'histoire et la mission de DakarMarket, votre plateforme d'e-commerce local à Dakar.",
+};
 
 export default function AboutPage() {
   const features = [
     {
       icon: ShoppingBag,
-      title: 'Produits Locaux',
-      description: 'Découvrez une large gamme de produits artisanaux et locaux de qualité.'
+      title: "Produits Locaux",
+      description:
+        "Découvrez une large gamme de produits artisanaux et locaux de qualité.",
     },
     {
       icon: Users,
-      title: 'Communauté',
-      description: 'Connectez-vous directement avec les marchands de votre quartier.'
+      title: "Communauté",
+      description:
+        "Connectez-vous directement avec les marchands de votre quartier.",
     },
     {
       icon: Shield,
-      title: 'Sécurisé',
-      description: 'Transactions sécurisées et protection des données garantie.'
+      title: "Sécurisé",
+      description:
+        "Transactions sécurisées et protection des données garantie.",
     },
     {
       icon: Truck,
-      title: 'Livraison Rapide',
-      description: 'Livraison rapide dans toute la région de Dakar.'
-    }
-  ]
+      title: "Livraison Rapide",
+      description:
+        "Livraison rapide dans toute la région de Dakar !A venir bientôt.",
+    },
+  ];
 
   const stats = [
-    { number: '500+', label: 'Produits' },
-    { number: '100+', label: 'Marchands' },
-    { number: '1000+', label: 'Clients satisfaits' },
-    { number: '50+', label: 'Quartiers desservis' }
-  ]
+    { number: "500+", label: "Produits" },
+    { number: "100+", label: "Marchands" },
+    { number: "1000+", label: "Clients satisfaits" },
+    { number: "50+", label: "Quartiers desservis" },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -52,22 +57,28 @@ export default function AboutPage() {
             </div>
             <span className="text-xl font-bold">DakarMarket</span>
           </Link>
-          
+
           <nav className="hidden md:flex items-center space-x-6">
             <Link href="/" className="text-sm font-medium hover:text-primary">
               Accueil
             </Link>
-            <Link href="/dashboard/products" className="text-sm font-medium hover:text-primary">
+            <Link
+              href="/dashboard/products"
+              className="text-sm font-medium hover:text-primary"
+            >
               Produits
             </Link>
             <Link href="/about" className="text-sm font-medium text-primary">
               À propos
             </Link>
-            <Link href="/contact" className="text-sm font-medium hover:text-primary">
+            <Link
+              href="/contact"
+              className="text-sm font-medium hover:text-primary"
+            >
               Contact
             </Link>
           </nav>
-          
+
           <div className="flex items-center space-x-4">
             <Link href="/login">
               <Button variant="ghost">Connexion</Button>
@@ -86,8 +97,9 @@ export default function AboutPage() {
             À propos de DakarMarket
           </h1>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-8">
-            DakarMarket est né de la volonté de connecter les marchands locaux avec les consommateurs 
-            de Dakar, créant un écosystème commercial digital qui valorise l'artisanat et les produits locaux.
+            DakarMarket est né de la volonté de connecter les marchands locaux
+            avec les consommateurs de Dakar, créant un écosystème commercial
+            digital qui valorise l'artisanat et les produits locaux.
           </p>
           <Badge variant="secondary" className="text-lg px-6 py-2">
             Depuis 2024
@@ -100,20 +112,19 @@ export default function AboutPage() {
             <div>
               <h2 className="text-3xl font-bold mb-6">Notre Mission</h2>
               <p className="text-muted-foreground mb-4">
-                Nous croyons en la richesse du patrimoine artisanal sénégalais et en la nécessité 
-                de le rendre accessible à tous. Notre plateforme permet aux marchands locaux de 
-                développer leur activité en ligne tout en offrant aux consommateurs un accès 
+                Nous croyons en la richesse du patrimoine artisanal sénégalais
+                et en la nécessité de le rendre accessible à tous. Notre
+                plateforme permet aux marchands locaux de développer leur
+                activité en ligne tout en offrant aux consommateurs un accès
                 privilégié aux produits authentiques de leur région.
               </p>
               <p className="text-muted-foreground mb-6">
-                DakarMarket n'est pas seulement une marketplace, c'est une communauté qui valorise 
-                le commerce local, soutient l'économie de proximité et préserve les traditions 
-                artisanales du Sénégal.
+                DakarMarket n'est pas seulement une marketplace, c'est une
+                communauté qui valorise le commerce local, soutient l'économie
+                de proximité et préserve les traditions artisanales du Sénégal.
               </p>
               <Link href="/register">
-                <Button size="lg">
-                  Rejoindre la communauté
-                </Button>
+                <Button size="lg">Rejoindre la communauté</Button>
               </Link>
             </div>
             <div className="grid grid-cols-2 gap-4">
@@ -140,7 +151,7 @@ export default function AboutPage() {
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {features.map((feature, index) => {
-              const Icon = feature.icon
+              const Icon = feature.icon;
               return (
                 <Card key={index} className="text-center">
                   <CardContent className="p-6">
@@ -155,7 +166,7 @@ export default function AboutPage() {
                     </p>
                   </CardContent>
                 </Card>
-              )
+              );
             })}
           </div>
         </section>
@@ -168,37 +179,39 @@ export default function AboutPage() {
               Les principes qui guident notre action quotidienne
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-8">
             <Card>
               <CardContent className="p-6">
                 <Heart className="h-12 w-12 text-primary mb-4" />
                 <h3 className="text-xl font-semibold mb-3">Authenticité</h3>
                 <p className="text-muted-foreground">
-                  Nous valorisons les produits authentiques et les savoir-faire traditionnels 
-                  du Sénégal, en garantissant la qualité et l'origine de chaque article.
+                  Nous valorisons les produits authentiques et les savoir-faire
+                  traditionnels du Sénégal, en garantissant la qualité et
+                  l'origine de chaque article.
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardContent className="p-6">
                 <Users className="h-12 w-12 text-primary mb-4" />
                 <h3 className="text-xl font-semibold mb-3">Communauté</h3>
                 <p className="text-muted-foreground">
-                  Nous créons des liens durables entre marchands et clients, favorisant 
-                  les échanges et le développement de l'économie locale.
+                  Nous créons des liens durables entre marchands et clients,
+                  favorisant les échanges et le développement de l'économie
+                  locale.
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardContent className="p-6">
                 <Star className="h-12 w-12 text-primary mb-4" />
                 <h3 className="text-xl font-semibold mb-3">Excellence</h3>
                 <p className="text-muted-foreground">
-                  Nous nous engageons à offrir une expérience utilisateur exceptionnelle 
-                  et un service client de qualité supérieure.
+                  Nous nous engageons à offrir une expérience utilisateur
+                  exceptionnelle et un service client de qualité supérieure.
                 </p>
               </CardContent>
             </Card>
@@ -211,14 +224,12 @@ export default function AboutPage() {
             Prêt à découvrir DakarMarket ?
           </h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Rejoignez notre communauté de marchands et de clients passionnés par 
+            Rejoignez notre communauté de marchands et de clients passionnés par
             les produits locaux et l'artisanat sénégalais.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/dashboard/products">
-              <Button size="lg">
-                Découvrir les produits
-              </Button>
+              <Button size="lg">Découvrir les produits</Button>
             </Link>
             <Link href="/register">
               <Button size="lg" variant="outline">
@@ -244,5 +255,5 @@ export default function AboutPage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
