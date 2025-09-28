@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { ShoppingBag, HelpCircle, MessageCircle } from 'lucide-react'
+import { ShoppingBag, CircleHelp as HelpCircle, MessageCircle } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'FAQ - DakarMarket',
