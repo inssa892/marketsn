@@ -1,147 +1,138 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { supabase } from '@/lib/supabase'
-import { useAuth } from '@/hooks/useAuth'
-import { toast } from 'sonner'
-import { Minus, Plus, Trash2, ShoppingBag, CreditCard } from 'lucide-react'
-import Image from 'next/image'
+import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { Minus, Plus, Trash2, ShoppingBag, CreditCard } from "lucide-react";
+import Image from "next/image";
 
 interface CartItemWithProduct {
-  id: string
-  quantity: number
+  id: string;
+  quantity: number;
   product: {
-    id: string
-    title: string
-    price: number
-    image_url?: string
-    user_id: string
-  }
+    id: string;
+    title: string;
+    price: number;
+    image_url?: string;
+    user_id: string;
+  };
 }
 
 export default function CartPage() {
-  const { user, profile } = useAuth()
-  const [cartItems, setCartItems] = useState<CartItemWithProduct[]>([])
-  const [loading, setLoading] = useState(true)
-  const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const { user, profile } = useAuth();
+  const [cartItems, setCartItems] = useState<CartItemWithProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
 
-  // Redirect if not client
-  if (profile?.role !== 'client') {
-    return (
-      <div className="text-center py-12">
-        <p className="text-muted-foreground">Cart is only available for clients.</p>
-      </div>
-    )
-  }
-
+  // Load cart items
   useEffect(() => {
-    if (user) {
-      loadCartItems()
+    if (user && profile?.role === "client") {
+      loadCartItems();
+    } else {
+      setLoading(false);
     }
-  }, [user])
+  }, [user, profile]);
 
   const loadCartItems = async () => {
-    if (!user) return
-
+    if (!user) return;
     try {
       const { data, error } = await supabase
-        .from('cart_items')
-        .select(`
+        .from("cart_items")
+        .select(
+          `
           *,
           product:products(id, title, price, image_url, user_id)
-        `)
-        .eq('client_id', user.id)
+        `
+        )
+        .eq("client_id", user.id);
 
-      if (error) throw error
-      setCartItems(data || [])
+      if (error) throw error;
+      setCartItems(data || []);
     } catch (error: any) {
-      toast.error('Failed to load cart items')
+      toast.error("Failed to load cart items");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const updateQuantity = async (itemId: string, newQuantity: number) => {
-    if (newQuantity < 1) return
-
+    if (newQuantity < 1) return;
     try {
       await supabase
-        .from('cart_items')
+        .from("cart_items")
         .update({ quantity: newQuantity })
-        .eq('id', itemId)
-
-      setCartItems(prev => 
-        prev.map(item => 
+        .eq("id", itemId);
+      setCartItems((prev) =>
+        prev.map((item) =>
           item.id === itemId ? { ...item, quantity: newQuantity } : item
         )
-      )
+      );
     } catch (error: any) {
-      toast.error('Failed to update quantity')
+      toast.error("Failed to update quantity");
     }
-  }
+  };
 
   const removeItem = async (itemId: string) => {
     try {
-      await supabase
-        .from('cart_items')
-        .delete()
-        .eq('id', itemId)
-
-      setCartItems(prev => prev.filter(item => item.id !== itemId))
-      toast.success('Item removed from cart')
+      await supabase.from("cart_items").delete().eq("id", itemId);
+      setCartItems((prev) => prev.filter((item) => item.id !== itemId));
+      toast.success("Item removed from cart");
     } catch (error: any) {
-      toast.error('Failed to remove item')
+      toast.error("Failed to remove item");
     }
-  }
+  };
 
   const checkout = async () => {
-    if (!user || cartItems.length === 0) return
-
-    setCheckoutLoading(true)
+    if (!user || cartItems.length === 0) return;
+    setCheckoutLoading(true);
     try {
-      // Create orders for each cart item
-      const orders = cartItems.map(item => ({
+      const orders = cartItems.map((item) => ({
         client_id: user.id,
         product_id: item.product.id,
         merchant_id: item.product.user_id,
         quantity: item.quantity,
         total: item.product.price * item.quantity,
-        status: 'pending' as const
-      }))
+        status: "pending" as const,
+      }));
 
       const { error: orderError } = await supabase
-        .from('orders')
-        .insert(orders)
+        .from("orders")
+        .insert(orders);
+      if (orderError) throw orderError;
 
-      if (orderError) throw orderError
-
-      // Clear cart
-      const { error: clearError } = await supabase
-        .from('cart_items')
-        .delete()
-        .eq('client_id', user.id)
-
-      if (clearError) throw clearError
-
-      setCartItems([])
-      toast.success('Order placed successfully!')
+      await supabase.from("cart_items").delete().eq("client_id", user.id);
+      setCartItems([]);
+      toast.success("Order placed successfully!");
     } catch (error: any) {
-      toast.error('Failed to place order: ' + error.message)
+      toast.error("Failed to place order: " + error.message);
     } finally {
-      setCheckoutLoading(false)
+      setCheckoutLoading(false);
     }
+  };
+
+  const totalAmount = cartItems.reduce(
+    (sum, item) => sum + item.product.price * item.quantity,
+    0
+  );
+
+  // Render
+  if (loading) {
+    return <div className="flex justify-center py-8">Loading cart...</div>;
   }
 
-  const totalAmount = cartItems.reduce((sum, item) => 
-    sum + (item.product.price * item.quantity), 0
-  )
-
-  if (loading) {
-    return <div className="flex justify-center py-8">Loading cart...</div>
+  if (profile?.role !== "client") {
+    return (
+      <div className="text-center py-12">
+        <p className="text-muted-foreground">
+          Cart is only available for clients.
+        </p>
+      </div>
+    );
   }
 
   if (cartItems.length === 0) {
@@ -152,11 +143,11 @@ export default function CartPage() {
         <p className="text-muted-foreground mb-6">
           Start shopping to add items to your cart
         </p>
-        <Button onClick={() => window.location.href = '/dashboard/products'}>
+        <Button onClick={() => (window.location.href = "/dashboard/products")}>
           Browse Products
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -165,7 +156,8 @@ export default function CartPage() {
       <div>
         <h1 className="text-3xl font-bold">Shopping Cart</h1>
         <p className="text-muted-foreground">
-          {cartItems.length} item{cartItems.length !== 1 ? 's' : ''} in your cart
+          {cartItems.length} item{cartItems.length !== 1 ? "s" : ""} in your
+          cart
         </p>
       </div>
 
@@ -176,7 +168,6 @@ export default function CartPage() {
             <Card key={item.id}>
               <CardContent className="p-6">
                 <div className="flex items-center space-x-4">
-                  {/* Product Image */}
                   <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted flex-shrink-0">
                     {item.product.image_url ? (
                       <Image
@@ -188,20 +179,22 @@ export default function CartPage() {
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-muted-foreground text-xs">No Image</span>
+                        <span className="text-muted-foreground text-xs">
+                          No Image
+                        </span>
                       </div>
                     )}
                   </div>
 
-                  {/* Product Details */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold truncate">{item.product.title}</h3>
+                    <h3 className="font-semibold truncate">
+                      {item.product.title}
+                    </h3>
                     <p className="text-lg font-bold text-primary">
                       ${item.product.price.toFixed(2)}
                     </p>
                   </div>
 
-                  {/* Quantity Controls */}
                   <div className="flex items-center space-x-2">
                     <Button
                       size="icon"
@@ -211,7 +204,9 @@ export default function CartPage() {
                     >
                       <Minus className="h-4 w-4" />
                     </Button>
-                    <span className="w-12 text-center font-medium">{item.quantity}</span>
+                    <span className="w-12 text-center font-medium">
+                      {item.quantity}
+                    </span>
                     <Button
                       size="icon"
                       variant="outline"
@@ -221,7 +216,6 @@ export default function CartPage() {
                     </Button>
                   </div>
 
-                  {/* Total & Remove */}
                   <div className="text-right">
                     <p className="font-semibold">
                       ${(item.product.price * item.quantity).toFixed(2)}
@@ -264,14 +258,14 @@ export default function CartPage() {
                 </div>
               </div>
 
-              <Button 
-                className="w-full" 
+              <Button
+                className="w-full"
                 size="lg"
                 onClick={checkout}
                 disabled={checkoutLoading}
               >
                 {checkoutLoading ? (
-                  'Processing...'
+                  "Processing..."
                 ) : (
                   <>
                     <CreditCard className="mr-2 h-4 w-4" />
@@ -290,5 +284,5 @@ export default function CartPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
