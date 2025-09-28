@@ -25,15 +25,15 @@ export default function AddProductPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
+  const [files, setFiles] = useState<File[]>([]);
   const [formData, setFormData] = useState({
     title: "",
     description: "",
     price: "",
     category: "general",
-    image_url: "",
+    images: [] as string[],
   });
 
-  // Vérifie le rôle du profil avant d'afficher la page
   useEffect(() => {
     if (profile && profile.role !== "merchant") {
       router.replace("/dashboard");
@@ -48,19 +48,20 @@ export default function AddProductPage() {
       const fileName = `${user.id}-${Math.random()}.${fileExt}`;
       const filePath = `products/${fileName}`;
 
-      // Upload dans Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from("products")
         .upload(filePath, file, { cacheControl: "3600", upsert: false });
 
       if (uploadError) throw uploadError;
 
-      // Récupère l'URL publique
       const { data } = supabase.storage.from("products").getPublicUrl(filePath);
 
       if (!data.publicUrl) throw new Error("Failed to get public URL");
 
-      setFormData((prev) => ({ ...prev, image_url: data.publicUrl }));
+      setFormData((prev) => ({
+        ...prev,
+        images: [...prev.images, data.publicUrl],
+      }));
       toast.success("Image uploaded successfully!");
     } catch (error: any) {
       toast.error("Failed to upload image: " + error.message);
@@ -70,8 +71,12 @@ export default function AddProductPage() {
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) uploadImage(file);
+    const selectedFiles = e.target.files;
+    if (!selectedFiles) return;
+
+    const fileArray = Array.from(selectedFiles);
+    setFiles((prev) => [...prev, ...fileArray]);
+    fileArray.forEach(uploadImage);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -79,6 +84,11 @@ export default function AddProductPage() {
     if (!user) return;
     if (!formData.title || !formData.price) {
       toast.error("Title and price are required");
+      return;
+    }
+
+    if (imageUploading) {
+      toast.error("Please wait until all images are uploaded.");
       return;
     }
 
@@ -91,7 +101,7 @@ export default function AddProductPage() {
           description: formData.description,
           price: parseFloat(formData.price),
           category: formData.category,
-          image_url: formData.image_url || null,
+          images: formData.images.length ? formData.images : null,
           created_at: new Date().toISOString(),
         },
       ]);
@@ -113,7 +123,6 @@ export default function AddProductPage() {
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
-      {/* Header */}
       <div className="flex items-center space-x-4">
         <Button variant="ghost" size="icon" onClick={() => router.back()}>
           <ArrowLeft className="h-4 w-4" />
@@ -126,64 +135,77 @@ export default function AddProductPage() {
         </div>
       </div>
 
-      {/* Form */}
       <Card>
         <CardHeader>
           <CardTitle>Product Details</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Image Upload */}
             <div className="space-y-2">
-              <Label>Product Image</Label>
+              <Label>Product Images</Label>
               <div className="flex items-center space-x-4">
-                {formData.image_url ? (
-                  <div className="relative w-32 h-32 rounded-lg overflow-hidden">
-                    <Image
-                      src={formData.image_url}
-                      alt="Product preview"
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ) : (
+                <div className="flex space-x-4 overflow-x-auto">
+                  {files.map((file, idx) => (
+                    <div
+                      key={idx}
+                      className="relative w-32 h-32 rounded-lg overflow-hidden"
+                    >
+                      <Image
+                        src={URL.createObjectURL(file)}
+                        alt={`Preview ${idx}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ))}
+                  {formData.images.map((url, idx) => (
+                    <div
+                      key={idx + files.length}
+                      className="relative w-32 h-32 rounded-lg overflow-hidden"
+                    >
+                      <Image
+                        src={url}
+                        alt={`Uploaded ${idx}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                  ))}
                   <div className="w-32 h-32 border-2 border-dashed border-muted-foreground/25 rounded-lg flex items-center justify-center">
                     <Upload className="h-8 w-8 text-muted-foreground" />
                   </div>
-                )}
-                <div>
+                </div>
+
+                <div className="relative">
                   <input
                     type="file"
                     accept="image/*"
+                    multiple
                     onChange={handleImageChange}
-                    className="hidden"
-                    id="image-upload"
+                    className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
                     disabled={imageUploading}
                   />
-                  <Label htmlFor="image-upload" className="cursor-pointer">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      disabled={imageUploading}
-                    >
-                      {imageUploading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Uploading...
-                        </>
-                      ) : (
-                        <>
-                          <Upload className="mr-2 h-4 w-4" />
-                          Upload Image
-                        </>
-                      )}
-                    </Button>
-                  </Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={imageUploading}
+                  >
+                    {imageUploading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload Images
+                      </>
+                    )}
+                  </Button>
                 </div>
               </div>
             </div>
 
-            {/* Title */}
             <div className="space-y-2">
               <Label htmlFor="title">Product Title *</Label>
               <Input
@@ -197,7 +219,6 @@ export default function AddProductPage() {
               />
             </div>
 
-            {/* Description */}
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
               <Textarea
@@ -214,7 +235,6 @@ export default function AddProductPage() {
               />
             </div>
 
-            {/* Price */}
             <div className="space-y-2">
               <Label htmlFor="price">Price *</Label>
               <Input
@@ -231,7 +251,6 @@ export default function AddProductPage() {
               />
             </div>
 
-            {/* Category */}
             <div className="space-y-2">
               <Label>Category</Label>
               <Select
@@ -254,7 +273,6 @@ export default function AddProductPage() {
               </Select>
             </div>
 
-            {/* Submit */}
             <div className="flex space-x-4">
               <Button
                 type="submit"

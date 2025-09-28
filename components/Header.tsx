@@ -89,9 +89,13 @@ export default function Header() {
           className="flex items-center space-x-2"
         >
           <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-lg">E</span>
+            <span className="text-primary-foreground font-bold text-lg">
+              DM
+            </span>
           </div>
-          <span className="hidden md:block text-xl font-bold">EcomStore</span>
+          <span className="hidden md:block text-xl font-bold">
+            Dakar Market
+          </span>
         </Link>
 
         {/* Search Desktop */}
