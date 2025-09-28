@@ -1,149 +1,159 @@
-'use client'
+"use client";
 
-import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { supabase, Product } from '@/lib/supabase'
-import { useAuth } from '@/hooks/useAuth'
-import { toast } from 'sonner'
-import { ArrowLeft, Upload, Loader as Loader2 } from 'lucide-react'
-import Image from 'next/image'
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
+import { ArrowLeft, Upload, Loader as Loader2 } from "lucide-react";
+import Image from "next/image";
 
 interface EditProductPageProps {
-  params: { id: string }
+  params: { id: string };
+}
+
+interface FormData {
+  title: string;
+  description: string;
+  price: string;
+  category: string;
+  image_url: string;
 }
 
 export default function EditProductPage({ params }: EditProductPageProps) {
-  const { user, profile } = useAuth()
-  const router = useRouter()
-  const [loading, setLoading] = useState(false)
-  const [imageUploading, setImageUploading] = useState(false)
-  const [productLoading, setProductLoading] = useState(true)
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    price: '',
-    category: 'general',
-    image_url: ''
-  })
+  const { user, profile } = useAuth();
+  const router = useRouter();
 
-  // Redirect if not merchant
-  if (profile?.role !== 'merchant') {
-    router.push('/dashboard')
-    return null
-  }
+  const [loading, setLoading] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
+  const [productLoading, setProductLoading] = useState(true);
+  const [formData, setFormData] = useState<FormData>({
+    title: "",
+    description: "",
+    price: "",
+    category: "general",
+    image_url: "",
+  });
 
+  // Redirection si pas merchant
   useEffect(() => {
-    loadProduct()
-  }, [params.id])
+    if (profile && profile.role !== "merchant") {
+      router.replace("/dashboard");
+    }
+  }, [profile, router]);
+
+  // Charger produit quand user et params.id sont prêts
+  useEffect(() => {
+    if (user) loadProduct();
+  }, [params.id, user]);
 
   const loadProduct = async () => {
     try {
       const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .eq('id', params.id)
-        .eq('user_id', user?.id) // Ensure user owns the product
-        .single()
+        .from("products")
+        .select("*")
+        .eq("id", params.id)
+        .eq("user_id", user?.id)
+        .single();
 
-      if (error) throw error
+      if (error) throw error;
 
       setFormData({
         title: data.title,
-        description: data.description || '',
+        description: data.description || "",
         price: data.price.toString(),
         category: data.category,
-        image_url: data.image_url || ''
-      })
+        image_url: data.image_url || "",
+      });
     } catch (error: any) {
-      toast.error('Failed to load product')
-      router.push('/dashboard/products')
+      toast.error("Failed to load product");
+      router.replace("/dashboard/products");
     } finally {
-      setProductLoading(false)
+      setProductLoading(false);
     }
-  }
+  };
 
   const uploadImage = async (file: File) => {
-    setImageUploading(true)
+    if (!user) return;
+    setImageUploading(true);
     try {
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${user?.id}-${Math.random()}.${fileExt}`
-      const filePath = `products/${fileName}`
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
+      const filePath = `products/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('products')
-        .upload(filePath, file)
+        .from("products")
+        .upload(filePath, file);
 
-      if (uploadError) throw uploadError
+      if (uploadError) throw uploadError;
 
-      const { data } = supabase.storage
-        .from('products')
-        .getPublicUrl(filePath)
+      const { data } = supabase.storage.from("products").getPublicUrl(filePath);
 
-      setFormData(prev => ({ ...prev, image_url: data.publicUrl }))
-      toast.success('Image uploaded successfully!')
+      setFormData((prev) => ({ ...prev, image_url: data.publicUrl }));
+      toast.success("Image uploaded successfully!");
     } catch (error: any) {
-      toast.error('Failed to upload image: ' + error.message)
+      toast.error("Failed to upload image: " + error.message);
     } finally {
-      setImageUploading(false)
+      setImageUploading(false);
     }
-  }
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      uploadImage(file)
-    }
-  }
+    const file = e.target.files?.[0];
+    if (file) uploadImage(file);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!user) return
+    e.preventDefault();
+    if (!user) return;
 
-    setLoading(true)
+    setLoading(true);
     try {
       const { error } = await supabase
-        .from('products')
+        .from("products")
         .update({
           title: formData.title,
           description: formData.description,
           price: parseFloat(formData.price),
           category: formData.category,
           image_url: formData.image_url || null,
-          updated_at: new Date().toISOString()
+          updated_at: new Date().toISOString(),
         })
-        .eq('id', params.id)
-        .eq('user_id', user.id)
+        .eq("id", params.id)
+        .eq("user_id", user.id);
 
-      if (error) throw error
+      if (error) throw error;
 
-      toast.success('Product updated successfully!')
-      router.push('/dashboard/products')
+      toast.success("Product updated successfully!");
+      router.push("/dashboard/products");
     } catch (error: any) {
-      toast.error('Failed to update product: ' + error.message)
+      toast.error("Failed to update product: " + error.message);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  if (productLoading) {
-    return <div className="flex justify-center py-8">Loading product...</div>
+  if (!profile || productLoading) {
+    return <div className="flex justify-center py-8">Loading...</div>;
   }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       {/* Header */}
       <div className="flex items-center space-x-4">
-        <Button 
-          variant="ghost" 
-          size="icon"
-          onClick={() => router.back()}
-        >
+        <Button variant="ghost" size="icon" onClick={() => router.back()}>
           <ArrowLeft className="h-4 w-4" />
         </Button>
         <div>
@@ -187,7 +197,11 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                     disabled={imageUploading}
                   />
                   <Label htmlFor="image-upload" className="cursor-pointer">
-                    <Button type="button" variant="outline" disabled={imageUploading}>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      disabled={imageUploading}
+                    >
                       {imageUploading ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -211,7 +225,9 @@ export default function EditProductPage({ params }: EditProductPageProps) {
               <Input
                 id="title"
                 value={formData.title}
-                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, title: e.target.value }))
+                }
                 placeholder="Enter product title"
                 required
               />
@@ -223,7 +239,12 @@ export default function EditProductPage({ params }: EditProductPageProps) {
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    description: e.target.value,
+                  }))
+                }
                 placeholder="Describe your product..."
                 rows={4}
               />
@@ -238,7 +259,9 @@ export default function EditProductPage({ params }: EditProductPageProps) {
                 step="0.01"
                 min="0"
                 value={formData.price}
-                onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, price: e.target.value }))
+                }
                 placeholder="0.00"
                 required
               />
@@ -247,9 +270,11 @@ export default function EditProductPage({ params }: EditProductPageProps) {
             {/* Category */}
             <div className="space-y-2">
               <Label>Category</Label>
-              <Select 
-                value={formData.category} 
-                onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}
+              <Select
+                value={formData.category}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, category: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue />
@@ -267,19 +292,22 @@ export default function EditProductPage({ params }: EditProductPageProps) {
 
             {/* Submit */}
             <div className="flex space-x-4">
-              <Button type="submit" disabled={loading || !formData.title || !formData.price}>
+              <Button
+                type="submit"
+                disabled={loading || !formData.title || !formData.price}
+              >
                 {loading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Updating...
                   </>
                 ) : (
-                  'Update Product'
+                  "Update Product"
                 )}
               </Button>
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={() => router.back()}
               >
                 Cancel
@@ -289,5 +317,5 @@ export default function EditProductPage({ params }: EditProductPageProps) {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

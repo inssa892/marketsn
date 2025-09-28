@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,31 +33,32 @@ export default function AddProductPage() {
     image_url: "",
   });
 
-  // ATTENTE DU PROFIL avant de faire la redirection
-  if (!profile) {
-    return <div className="flex justify-center py-8">Loading...</div>;
-  }
-
-  // Redirection si l'utilisateur n'est pas marchand
-  if (profile.role !== "merchant") {
-    router.push("/dashboard");
-    return null;
-  }
+  // Vérifie le rôle du profil avant d'afficher la page
+  useEffect(() => {
+    if (profile && profile.role !== "merchant") {
+      router.replace("/dashboard");
+    }
+  }, [profile, router]);
 
   const uploadImage = async (file: File) => {
+    if (!user) return;
     setImageUploading(true);
     try {
       const fileExt = file.name.split(".").pop();
-      const fileName = `${user?.id}-${Math.random()}.${fileExt}`;
+      const fileName = `${user.id}-${Math.random()}.${fileExt}`;
       const filePath = `products/${fileName}`;
 
+      // Upload dans Supabase Storage
       const { error: uploadError } = await supabase.storage
         .from("products")
-        .upload(filePath, file);
+        .upload(filePath, file, { cacheControl: "3600", upsert: false });
 
       if (uploadError) throw uploadError;
 
+      // Récupère l'URL publique
       const { data } = supabase.storage.from("products").getPublicUrl(filePath);
+
+      if (!data.publicUrl) throw new Error("Failed to get public URL");
 
       setFormData((prev) => ({ ...prev, image_url: data.publicUrl }));
       toast.success("Image uploaded successfully!");
@@ -70,14 +71,16 @@ export default function AddProductPage() {
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      uploadImage(file);
-    }
+    if (file) uploadImage(file);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) return;
+    if (!formData.title || !formData.price) {
+      toast.error("Title and price are required");
+      return;
+    }
 
     setLoading(true);
     try {
@@ -89,6 +92,7 @@ export default function AddProductPage() {
           price: parseFloat(formData.price),
           category: formData.category,
           image_url: formData.image_url || null,
+          created_at: new Date().toISOString(),
         },
       ]);
 
@@ -102,6 +106,10 @@ export default function AddProductPage() {
       setLoading(false);
     }
   };
+
+  if (!profile) {
+    return <div className="flex justify-center py-8">Loading...</div>;
+  }
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
