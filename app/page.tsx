@@ -80,6 +80,30 @@ export default function HomePage() {
   return (
     <main className="min-h-screen font-sans bg-background text-foreground">
       {/* HERO */}
+      <header className="w-full z-20 flex justify-between items-center py-4 px-6 bg-white dark:bg-gray-800 shadow sticky top-0 z-10">
+        <div className="flex items-center space-x-2">
+          <span className="text-xl font-bold text-gray-800 dark:text-white">
+            DakarMarket
+          </span>
+        </div>
+        <nav className="flex gap-4">
+          <Link
+            href="/login"
+            className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:text-green-500 transition"
+            aria-label="Connexion"
+          >
+            Connexion
+          </Link>
+          <Link
+            href="/signup"
+            className="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+            aria-label="Créer un compte"
+          >
+            Créer un compte
+          </Link>
+        </nav>
+      </header>
+
       <section
         className="relative py-20 text-center px-6"
         style={{
@@ -116,7 +140,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
       {/* RECHERCHE + FILTRES */}
       <section id="catalogue" className="py-16 container mx-auto px-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-12">
@@ -172,7 +195,6 @@ export default function HomePage() {
           </div>
         )}
       </section>
-
       {/* QUICK LINKS */}
       <section className="py-16 container mx-auto px-6 grid grid-cols-1 sm:grid-cols-4 gap-6">
         <Link
@@ -210,7 +232,6 @@ export default function HomePage() {
           </p>
         </Link>
       </section>
-
       {/* FOOTER */}
       <footer className="bg-gray-900 text-white py-12 mt-16">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8">

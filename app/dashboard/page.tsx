@@ -122,20 +122,31 @@ export default function DashboardPage() {
   };
 
   if (loading) {
-    return <div className="flex justify-center py-8">Loading dashboard...</div>;
+    return (
+      <div className="flex justify-center py-12">
+        <div className="animate-pulse text-lg text-muted-foreground">
+          Loading dashboard...
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10">
       {/* Welcome Section */}
-      <div className="text-center py-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-gray-800 dark:to-gray-700 rounded-lg">
-        <h1 className="text-3xl font-bold mb-2">
+      <div className="text-center py-10 px-4 bg-gradient-to-r from-blue-100 to-indigo-100 dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-sm">
+        <h1 className="text-3xl md:text-4xl font-bold mb-2">
           {profile?.role === "merchant"
             ? "Merchant Dashboard"
             : "Customer Dashboard"}
         </h1>
-        <p className="text-muted-foreground text-lg">{getWelcomeMessage()}</p>
-        <Badge variant="outline" className="mt-2">
+        <p className="text-muted-foreground text-base md:text-lg">
+          {getWelcomeMessage()}
+        </p>
+        <Badge
+          variant="outline"
+          className="mt-4 px-4 py-1 text-sm md:text-base font-medium"
+        >
           {profile?.role === "merchant"
             ? "Merchant Account"
             : "Customer Account"}
@@ -143,49 +154,53 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {profile?.role === "merchant" ? (
           <>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+            <Card className="hover:shadow-md transition">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-semibold">
                   Total Products
                 </CardTitle>
-                <Package className="h-4 w-4 text-muted-foreground" />
+                <Package className="h-5 w-5 text-primary" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{stats.totalProducts}</div>
+                <div className="text-2xl font-bold">
+                  {stats.totalProducts ?? 0}
+                </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+            <Card className="hover:shadow-md transition">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-semibold">
                   Total Orders
                 </CardTitle>
-                <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                <ShoppingCart className="h-5 w-5 text-primary" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.totalOrders}</div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Revenue</CardTitle>
-                <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <Card className="hover:shadow-md transition">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-semibold">Revenue</CardTitle>
+                <TrendingUp className="h-5 w-5 text-green-600" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
+                <div className="text-2xl font-bold text-green-600">
                   ${stats.revenue?.toFixed(2) || "0.00"}
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Messages</CardTitle>
-                <MessageCircle className="h-4 w-4 text-muted-foreground" />
+            <Card className="hover:shadow-md transition">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-semibold">
+                  Messages
+                </CardTitle>
+                <MessageCircle className="h-5 w-5 text-primary" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.unreadMessages}</div>
@@ -195,12 +210,12 @@ export default function DashboardPage() {
           </>
         ) : (
           <>
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
+            <Card className="hover:shadow-md transition">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-semibold">
                   Cart Items
                 </CardTitle>
-                <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                <ShoppingCart className="h-5 w-5 text-primary" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.cartItems}</div>
@@ -213,10 +228,12 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Favorites</CardTitle>
-                <Heart className="h-4 w-4 text-muted-foreground" />
+            <Card className="hover:shadow-md transition">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-semibold">
+                  Favorites
+                </CardTitle>
+                <Heart className="h-5 w-5 text-red-500" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.favorites}</div>
@@ -229,10 +246,10 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Orders</CardTitle>
-                <Package className="h-4 w-4 text-muted-foreground" />
+            <Card className="hover:shadow-md transition">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-semibold">Orders</CardTitle>
+                <Package className="h-5 w-5 text-primary" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.totalOrders}</div>
@@ -245,10 +262,12 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Messages</CardTitle>
-                <MessageCircle className="h-4 w-4 text-muted-foreground" />
+            <Card className="hover:shadow-md transition">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-sm font-semibold">
+                  Messages
+                </CardTitle>
+                <MessageCircle className="h-5 w-5 text-primary" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{stats.unreadMessages}</div>
@@ -266,34 +285,34 @@ export default function DashboardPage() {
       </div>
 
       {/* Quick Actions */}
-      <Card>
+      <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
+          <CardTitle className="text-lg font-semibold">Quick Actions</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {profile?.role === "merchant" ? (
               <>
                 <Link
                   href={ROUTES.products}
-                  className="p-4 border rounded-lg hover:bg-muted/50 transition-colors block"
+                  className="p-4 border rounded-lg hover:bg-muted/50 transition"
                 >
-                  <h3 className="font-semibold mb-2">Add New Product</h3>
+                  <h3 className="font-semibold mb-1">Add New Product</h3>
                   <p className="text-sm text-muted-foreground">
                     List a new product for sale
                   </p>
                 </Link>
                 <Link
                   href={ROUTES.orders}
-                  className="p-4 border rounded-lg hover:bg-muted/50 transition-colors block"
+                  className="p-4 border rounded-lg hover:bg-muted/50 transition"
                 >
-                  <h3 className="font-semibold mb-2">Manage Orders</h3>
+                  <h3 className="font-semibold mb-1">Manage Orders</h3>
                   <p className="text-sm text-muted-foreground">
                     Update order status and track deliveries
                   </p>
                 </Link>
-                <div className="p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                  <h3 className="font-semibold mb-2">View Analytics</h3>
+                <div className="p-4 border rounded-lg hover:bg-muted/50 transition">
+                  <h3 className="font-semibold mb-1">View Analytics</h3>
                   <p className="text-sm text-muted-foreground">
                     Track your sales performance
                   </p>
@@ -303,27 +322,27 @@ export default function DashboardPage() {
               <>
                 <Link
                   href={ROUTES.products}
-                  className="p-4 border rounded-lg hover:bg-muted/50 transition-colors block"
+                  className="p-4 border rounded-lg hover:bg-muted/50 transition"
                 >
-                  <h3 className="font-semibold mb-2">Browse Products</h3>
+                  <h3 className="font-semibold mb-1">Browse Products</h3>
                   <p className="text-sm text-muted-foreground">
                     Discover new products to buy
                   </p>
                 </Link>
                 <Link
                   href={ROUTES.cart}
-                  className="p-4 border rounded-lg hover:bg-muted/50 transition-colors block"
+                  className="p-4 border rounded-lg hover:bg-muted/50 transition"
                 >
-                  <h3 className="font-semibold mb-2">Check Cart</h3>
+                  <h3 className="font-semibold mb-1">Check Cart</h3>
                   <p className="text-sm text-muted-foreground">
                     Review items ready for purchase
                   </p>
                 </Link>
                 <Link
                   href={ROUTES.orders}
-                  className="p-4 border rounded-lg hover:bg-muted/50 transition-colors block"
+                  className="p-4 border rounded-lg hover:bg-muted/50 transition"
                 >
-                  <h3 className="font-semibold mb-2">Track Orders</h3>
+                  <h3 className="font-semibold mb-1">Track Orders</h3>
                   <p className="text-sm text-muted-foreground">
                     Monitor your order status
                   </p>
