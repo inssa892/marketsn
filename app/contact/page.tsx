@@ -1,44 +1,45 @@
-import { Metadata } from 'next'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { ShoppingBag, Mail, Phone, MapPin, MessageCircle } from 'lucide-react'
+import { Metadata } from "next";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { ShoppingBag, Mail, Phone, MapPin, MessageCircle } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: 'Contact - DakarMarket',
-  description: 'Contactez l\'équipe DakarMarket pour toute question ou assistance.',
-}
+  title: "Contact - DakarMarket",
+  description:
+    "Contactez l'équipe DakarMarket pour toute question ou assistance.",
+};
 
 export default function ContactPage() {
   const contactInfo = [
     {
       icon: Mail,
-      title: 'Email',
-      content: 'contact@dakarmarket.sn',
-      link: 'mailto:contact@dakarmarket.sn'
+      title: "Email",
+      content: "diedhiouinssa16@gmail.com",
+      link: "mailto:diedhiouinssa16@gmail.com",
     },
     {
       icon: Phone,
-      title: 'Téléphone',
-      content: '+221 77 123 45 67',
-      link: 'tel:+221771234567'
+      title: "Téléphone",
+      content: "+221 77 104 76 29",
+      link: "tel:+221771047629",
     },
     {
       icon: MessageCircle,
-      title: 'WhatsApp',
-      content: '+221 75 522 70 06',
-      link: 'https://wa.me/221755227006'
+      title: "WhatsApp",
+      content: "+221 75 522 70 06",
+      link: "https://wa.me/221755227006",
     },
     {
       icon: MapPin,
-      title: 'Adresse',
-      content: 'Dakar, Sénégal',
-      link: null
-    }
-  ]
+      title: "Adresse",
+      content: "Dakar, Sénégal",
+      link: null,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-background">
@@ -51,22 +52,28 @@ export default function ContactPage() {
             </div>
             <span className="text-xl font-bold">DakarMarket</span>
           </Link>
-          
+
           <nav className="hidden md:flex items-center space-x-6">
             <Link href="/" className="text-sm font-medium hover:text-primary">
               Accueil
             </Link>
-            <Link href="/dashboard/products" className="text-sm font-medium hover:text-primary">
+            <Link
+              href="/dashboard/products"
+              className="text-sm font-medium hover:text-primary"
+            >
               Produits
             </Link>
-            <Link href="/about" className="text-sm font-medium hover:text-primary">
+            <Link
+              href="/about"
+              className="text-sm font-medium hover:text-primary"
+            >
               À propos
             </Link>
             <Link href="/contact" className="text-sm font-medium text-primary">
               Contact
             </Link>
           </nav>
-          
+
           <div className="flex items-center space-x-4">
             <Link href="/login">
               <Button variant="ghost">Connexion</Button>
@@ -85,7 +92,7 @@ export default function ContactPage() {
             Contactez-nous
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Notre équipe est là pour vous aider. N'hésitez pas à nous contacter 
+            Notre équipe est là pour vous aider. N'hésitez pas à nous contacter
             pour toute question ou assistance.
           </p>
         </section>
@@ -97,42 +104,82 @@ export default function ContactPage() {
               <CardTitle>Envoyez-nous un message</CardTitle>
             </CardHeader>
             <CardContent>
-              <form className="space-y-6">
+              <form
+                className="space-y-6"
+                action="https://formspree.io/f/mgvnoqkj" // Remplace TON_ID_FORM par ton ID Formspree
+                method="POST"
+              >
                 <div className="grid md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="firstName">Prénom</Label>
-                    <Input id="firstName" placeholder="Votre prénom" />
+                    <Input
+                      id="firstName"
+                      name="firstName"
+                      placeholder="Votre prénom"
+                      required
+                    />
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="lastName">Nom</Label>
-                    <Input id="lastName" placeholder="Votre nom" />
+                    <Input
+                      id="lastName"
+                      name="lastName"
+                      placeholder="Votre nom"
+                      required
+                    />
                   </div>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" placeholder="votre@email.com" />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Téléphone (optionnel)</Label>
-                  <Input id="phone" type="tel" placeholder="+221 77 123 45 67" />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="subject">Sujet</Label>
-                  <Input id="subject" placeholder="Sujet de votre message" />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="message">Message</Label>
-                  <Textarea 
-                    id="message" 
-                    placeholder="Décrivez votre demande en détail..."
-                    rows={6}
+                  <Input
+                    id="email"
+                    type="email"
+                    name="email"
+                    placeholder="votre@email.com"
+                    required
                   />
                 </div>
-                
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Téléphone (optionnel)</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    name="phone"
+                    placeholder="+221 77 123 45 67"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="subject">Sujet</Label>
+                  <Input
+                    id="subject"
+                    name="subject"
+                    placeholder="Sujet de votre message"
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="message">Message</Label>
+                  <Textarea
+                    id="message"
+                    name="message"
+                    placeholder="Décrivez votre demande en détail..."
+                    rows={6}
+                    required
+                  />
+                </div>
+
+                {/* Page de succès après soumission */}
+                <input type="hidden" name="_next" value="/contact-success" />
+                <input
+                  type="hidden"
+                  name="_subject"
+                  value="Nouveau message depuis DakarMarket"
+                />
+
                 <Button type="submit" className="w-full">
                   Envoyer le message
                 </Button>
@@ -148,20 +195,26 @@ export default function ContactPage() {
               </CardHeader>
               <CardContent className="space-y-6">
                 {contactInfo.map((info, index) => {
-                  const Icon = info.icon
+                  const Icon = info.icon;
                   const content = info.link ? (
-                    <a 
-                      href={info.link} 
+                    <a
+                      href={info.link}
                       className="text-primary hover:underline"
-                      target={info.link.startsWith('http') ? '_blank' : undefined}
-                      rel={info.link.startsWith('http') ? 'noopener noreferrer' : undefined}
+                      target={
+                        info.link.startsWith("http") ? "_blank" : undefined
+                      }
+                      rel={
+                        info.link.startsWith("http")
+                          ? "noopener noreferrer"
+                          : undefined
+                      }
                     >
                       {info.content}
                     </a>
                   ) : (
                     <span>{info.content}</span>
-                  )
-                  
+                  );
+
                   return (
                     <div key={index} className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
@@ -169,12 +222,10 @@ export default function ContactPage() {
                       </div>
                       <div>
                         <h3 className="font-semibold">{info.title}</h3>
-                        <div className="text-muted-foreground">
-                          {content}
-                        </div>
+                        <div className="text-muted-foreground">{content}</div>
                       </div>
                     </div>
-                  )
+                  );
                 })}
               </CardContent>
             </Card>
@@ -232,40 +283,49 @@ export default function ContactPage() {
           <div className="grid md:grid-cols-2 gap-8">
             <Card>
               <CardContent className="p-6">
-                <h3 className="font-semibold mb-3">Comment devenir marchand ?</h3>
+                <h3 className="font-semibold mb-3">
+                  Comment devenir marchand ?
+                </h3>
                 <p className="text-muted-foreground">
-                  Inscrivez-vous en choisissant le type de compte "Marchand" lors de votre inscription. 
-                  Vous pourrez ensuite ajouter vos produits et commencer à vendre.
+                  Inscrivez-vous en choisissant le type de compte "Marchand"
+                  lors de votre inscription. Vous pourrez ensuite ajouter vos
+                  produits et commencer à vendre.
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardContent className="p-6">
-                <h3 className="font-semibold mb-3">Comment passer une commande ?</h3>
+                <h3 className="font-semibold mb-3">
+                  Comment passer une commande ?
+                </h3>
                 <p className="text-muted-foreground">
-                  Parcourez nos produits, ajoutez-les à votre panier, puis procédez au checkout 
-                  pour finaliser votre commande.
+                  Parcourez nos produits, ajoutez-les à votre panier, puis
+                  procédez au checkout pour finaliser votre commande.
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardContent className="p-6">
-                <h3 className="font-semibold mb-3">Quels sont les modes de paiement ?</h3>
+                <h3 className="font-semibold mb-3">
+                  Quels sont les modes de paiement ?
+                </h3>
                 <p className="text-muted-foreground">
-                  Nous acceptons les paiements par mobile money, carte bancaire et paiement 
-                  à la livraison selon les marchands.
+                  Nous acceptons les paiements par mobile money, carte bancaire
+                  et paiement à la livraison selon les marchands.
                 </p>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardContent className="p-6">
-                <h3 className="font-semibold mb-3">Comment suivre ma commande ?</h3>
+                <h3 className="font-semibold mb-3">
+                  Comment suivre ma commande ?
+                </h3>
                 <p className="text-muted-foreground">
-                  Connectez-vous à votre compte et accédez à la section "Mes commandes" 
-                  pour suivre l'état de vos commandes en temps réel.
+                  Connectez-vous à votre compte et accédez à la section "Mes
+                  commandes" pour suivre l'état de vos commandes en temps réel.
                 </p>
               </CardContent>
             </Card>
@@ -288,5 +348,5 @@ export default function ContactPage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }
