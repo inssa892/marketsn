@@ -22,7 +22,7 @@ import {
 } from "lucide-react";
 
 export default function SettingsPage() {
-  const { user, profile, refreshProfile } = useAuth(); // refreshProfile pour reload les données
+  const { user, profile, refreshProfile } = useAuth();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -33,11 +33,6 @@ export default function SettingsPage() {
     phone: "",
     whatsapp_number: "",
     avatar_url: "",
-  });
-
-  const [passwordData, setPasswordData] = useState({
-    newPassword: "",
-    confirmPassword: "",
   });
 
   useEffect(() => {
@@ -73,40 +68,31 @@ export default function SettingsPage() {
       if (error) throw error;
 
       toast.success("Profile updated successfully!");
-      if (refreshProfile) refreshProfile(); // recharge les infos pour que UI se mette à jour
-    } catch (error: any) {
-      toast.error("Failed to update profile: " + error.message);
+      refreshProfile?.();
+    } catch (err: any) {
+      toast.error("Failed to update profile: " + (err.message || err));
     } finally {
       setLoading(false);
     }
   };
 
-  // --- Update Password ---
-  const updatePassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      toast.error("New passwords do not match");
-      return;
-    }
-
-    if (passwordData.newPassword.length < 6) {
-      toast.error("Password must be at least 6 characters");
-      return;
-    }
+  // --- Send Password Reset Email ---
+  const sendResetPasswordEmail = async () => {
+    if (!profile?.email) return toast.error("No email found for user");
 
     setPasswordLoading(true);
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: passwordData.newPassword,
-      });
-
+      const { error } = await supabase.auth.resetPasswordForEmail(
+        profile.email
+      );
       if (error) throw error;
 
-      setPasswordData({ newPassword: "", confirmPassword: "" });
-      toast.success("Password updated successfully!");
-    } catch (error: any) {
-      toast.error("Failed to update password: " + error.message);
+      toast.success("Password recovery email sent!");
+    } catch (err: any) {
+      console.error("Reset password error:", err);
+      toast.error(
+        "Failed to send password recovery email: " + (err.message || err)
+      );
     } finally {
       setPasswordLoading(false);
     }
@@ -122,7 +108,6 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
       <div className="flex items-center space-x-4">
         <Settings className="h-8 w-8 text-primary" />
         <div>
@@ -143,7 +128,6 @@ export default function SettingsPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Avatar */}
             <div className="flex flex-col items-center space-y-4">
               <AvatarUploader
                 avatarUrl={profileData.avatar_url}
@@ -153,7 +137,6 @@ export default function SettingsPage() {
 
             <Separator />
 
-            {/* Profile Form */}
             <form onSubmit={updateProfile} className="space-y-4">
               <div className="space-y-2">
                 <Label>Email</Label>
@@ -233,7 +216,6 @@ export default function SettingsPage() {
 
         {/* Security & Preferences */}
         <div className="space-y-6">
-          {/* Theme Settings */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
@@ -254,7 +236,6 @@ export default function SettingsPage() {
             </CardContent>
           </Card>
 
-          {/* Password Settings */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
@@ -263,37 +244,23 @@ export default function SettingsPage() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={updatePassword} className="space-y-4">
-                <Input
-                  type="password"
-                  placeholder="New password"
-                  value={passwordData.newPassword}
-                  onChange={(e) =>
-                    setPasswordData((prev) => ({
-                      ...prev,
-                      newPassword: e.target.value,
-                    }))
-                  }
-                />
-                <Input
-                  type="password"
-                  placeholder="Confirm new password"
-                  value={passwordData.confirmPassword}
-                  onChange={(e) =>
-                    setPasswordData((prev) => ({
-                      ...prev,
-                      confirmPassword: e.target.value,
-                    }))
-                  }
-                />
-                <Button type="submit" disabled={passwordLoading}>
-                  {passwordLoading ? "Updating..." : "Update Password"}
-                </Button>
-              </form>
+              <Button
+                onClick={sendResetPasswordEmail}
+                disabled={passwordLoading}
+                className="w-full"
+              >
+                {passwordLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  "Reset Password"
+                )}
+              </Button>
             </CardContent>
           </Card>
 
-          {/* Account Info */}
           <Card>
             <CardHeader>
               <CardTitle>Account Information</CardTitle>
