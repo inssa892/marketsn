@@ -16,13 +16,7 @@ export function useAuth() {
       setUser(session?.user ?? null)
       
       if (session?.user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', session.user.id)
-          .single()
-        
-        setProfile(profile)
+        await loadProfile(session.user.id)
       }
       
       setLoading(false)
@@ -35,13 +29,7 @@ export function useAuth() {
         setUser(session?.user ?? null)
         
         if (session?.user) {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', session.user.id)
-            .single()
-          
-          setProfile(profile)
+          await loadProfile(session.user.id)
         } else {
           setProfile(null)
         }
@@ -52,6 +40,27 @@ export function useAuth() {
 
     return () => subscription.unsubscribe()
   }, [])
+
+  const loadProfile = async (userId: string) => {
+    try {
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
+      
+      if (error) throw error
+      setProfile(profile)
+    } catch (error) {
+      console.error('Error loading profile:', error)
+    }
+  }
+
+  const refreshProfile = async () => {
+    if (user) {
+      await loadProfile(user.id)
+    }
+  }
 
   const signUp = async (email: string, password: string, displayName: string, role: 'client' | 'merchant' = 'client') => {
     try {
@@ -119,6 +128,7 @@ export function useAuth() {
     user,
     profile,
     loading,
+    refreshProfile,
     signUp,
     signIn,
     signOut,

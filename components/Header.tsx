@@ -106,7 +106,7 @@ export default function Header() {
             {user && (
               <>
                 {/* Favorites */}
-                <Link href="/favorites">
+                <Link href="/dashboard/favorites">
                   <Button variant="ghost" size="icon" className="relative">
                     <Heart className="h-4 w-4" />
                     {favoritesCount > 0 && (
@@ -118,7 +118,7 @@ export default function Header() {
                 </Link>
 
                 {/* Cart */}
-                <Link href="/cart">
+                <Link href="/dashboard/cart">
                   <Button variant="ghost" size="icon" className="relative">
                     <ShoppingCart className="h-4 w-4" />
                     {cartCount > 0 && (
@@ -141,7 +141,7 @@ export default function Header() {
                       <span className="font-medium">{profile?.display_name || profile?.email}</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                      <Link href="/settings">Settings</Link>
+                      <Link href="/dashboard/settings">Settings</Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={handleSignOut}>
                       <LogOut className="mr-2 h-4 w-4" />

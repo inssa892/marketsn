@@ -66,14 +66,14 @@ export default function SettingsPage() {
           phone: profileData.phone,
           whatsapp_number: profileData.whatsapp_number,
           avatar_url: profileData.avatar_url,
-          // supprimé updated_at si la colonne n'existe pas
+          updated_at: new Date().toISOString(),
         })
         .eq("id", user.id);
 
       if (error) throw error;
 
       toast.success("Profile updated successfully!");
-      refreshProfile(); // recharge les infos pour que UI se mette à jour
+      if (refreshProfile) refreshProfile(); // recharge les infos pour que UI se mette à jour
     } catch (error: any) {
       toast.error("Failed to update profile: " + error.message);
     } finally {
